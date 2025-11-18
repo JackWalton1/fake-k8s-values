@@ -47,20 +47,19 @@ jobs:
           echo "Changed files: $CHANGED_FILES"
 
       # --- Run Gitleaks on changed files ---
-      - name: Run Gitleaks (dry run)
+      - name: Run Gitleaks on changed files (dry run)
         if: steps.changes.outputs.files != ''
         run: |
           docker pull zricethezav/gitleaks:v8.28.0
           for file in ${{ steps.changes.outputs.files }}; do
-            echo "Scanning $file"
-            docker run --rm -v $PWD:/path zricethezav/gitleaks:v8.28.0 detect \
-              --source "/path/$file" \
+            echo "Scanning $file for exposed secrets"
+            docker run --rm -v $PWD:/path zricethezav/gitleaks:v8.28.0 dir \
+              "/path/$file" \
               --config /path/.gitleaks.toml \
               --report-format json \
               --report-path "/path/gitleaks-report-$(basename $file).json" \
-              --redact --verbose || true
+              --redact --verbose 
           done
-
       # --- Parse report for quick summary ---
       - name: Parse report (show rule names only)
         if: always()
