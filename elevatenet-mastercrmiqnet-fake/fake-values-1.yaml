@@ -1,0 +1,227 @@
+NameOverride:
+  elevatenet-mastercrmiqnet-dev
+
+yrmon:
+  # kibana:
+  #   multitenant:
+  #   connect: https://kibana.google-us-west2.yrmon.com/goto/ba2ace208ea862816dcc5bb7e63074cd
+  grafana:
+    multitenant: https://google.com
+    connect: https://google.com
+  healthcheck:
+    multitenant: https://yardiabf.yardiusdev.com/RentCafeCRMFlex/api/uptime
+
+
+multitenant:
+  serviceAccount:
+    automount: false
+
+  image:
+    tag:
+  replicaCount: 2
+
+  resources:
+    requests:
+     cpu: 500m
+     memory: 1Gi
+    limits:
+     cpu: 1000m
+     memory: 2Gi
+
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 800
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+
+  config:
+     {
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft": "Warning",
+          "Microsoft.Hosting.Lifetime": "Information",
+          "Microsoft.AspNetCore.Hosting.Diagnostics": "Information",
+        }
+      },
+      "AllowedHosts": "*",
+      "ConnectionStrings": {
+        "AngularCafeAdminConnection": "Server=10.242.1.65;user id=elevate_multitenant_mssql_dev;password=###_ELEVATENET_DEV_MSSQL_MULTITENANTDB_PASSWORD_###;database=elevate_multitenant_mssql_dev;",
+        "AngularCafeAdminConnectionProviderName": "System.Data.SqlClient",
+        "AngularHangFireConnection": "Server=10.242.1.90;Port=6033;user id=elevate_tasks_dev;password=###_TOKEN1_###;database=elevate_tasks_dev;SslMode=none;CharSet=utf8;",
+        "AngularHangFireConnectionProviderName": "MySql.Data.MySqlClient"
+      },
+      "AppSettings": {
+        "ConnectionStringName": "AngularCafeAdminConnection",
+        "connectkey": "xyz",
+        "SchedulerAuthKey": "xyz",
+        "EnableShowStackTraceOnError": true,
+        "EnableDapperLog": true,
+        "EnableElevateRoleSwitcher": true,
+        "MatrixApiEndpoint": "https://apitest.mtxqa.com/v1",
+        "RentCafeConnectUrl": "https://internalsnet.rcdev.cafe/",
+        "RentCafeConnectKey": "###_ELEVATENET_DEV_RENTCAFECONNECTKEY_###",
+        "UseUrlPort": "5000",
+        "ConnectAPIVoyagerInterfaceUser": "ysi",
+        "ProductName": "mastercrmiqnet",
+        "ContentDirPath": "content2",
+        "Content2DirPath": "content2",
+        "DefaultProductMenu": "rentcafecrmiq",
+        "ConnectApiPrefix": "api/connect/",
+        "ApiPrefix": "api",
+        "Environment": "Dev",
+        "YardiHelpId": "8BB4A0F3-FC94-4B2B-A5CD",
+        "YardiHelpRelatedTok": "###_TOKEN2_###",
+        "ProductSpecificBranding": "true",
+        "OmniProductToken": "###_TOKEN3_###", #not real
+        "OmniApiURL": "https://api.omnidev.cafe",
+        "apiPrefixConnect": "/api/connect",
+        "ConnectSecurityKey": "xyz",
+        "yAuthCommonAuthority": "https://yardisystems.yardione.com/yAuth2/identity",
+        "UseSessionCache": true,
+        "UseDynamicSessionKeyUpdate": true,
+        "MaxAutoCompleteRecords": 10,
+        "UseHttpResponseMessageOutputFormatter": true,
+        "StellarUri": "http://svc.yardi.com/api/getconnectionfromdatabase?database={0}",
+        "DatabaseUsername": "elevate_multitenant_mssql_dev",
+        "DatabasePassword": "###_ELEVATENET_DEV_MULTITENANTDB_PASSWORD_###",
+        "LogOutURL": "https://{0}.yardione.com/account/logout",
+        "EnableAppCache": true,
+        "AppCacheDefaultExpiryInSeconds": 1200,
+        "AppCacheUserDefaultExpiryInSeconds": 1200,
+        "HangfireType": "Redis",
+        "HangfireApplicationName": "CRMIQScheduler",
+        "HangfireApplicationEnvironment": "PCA_Dev",
+        "HangfireRedisDatabaseConnectionString": "master.elevate-tasks.valkey.pcz-dev-cache.yardiplatform.com,replicas.elevate-tasks.valkey.pcz-dev-cache.yardiplatform.com,abortConnect=false",
+        "HangfireWorkerCount": 80,
+        "HangfireRecurringWorkerCount": 1,
+        "HangfireRecurringServerTarget": "scheduler",
+        "HangfireFireAndForgetServerTarget": "multitenant",
+        "VirtuosoSelectorAPI": "https://virtuososelectordev.yardiapp.com",
+        "VirtuosoSelectorAPIKey": "###_VIRTUOSOSELECTORAPIKEY_QA_###",
+        "VirtuosoOpenAPIAuthKey": "###_VIRTUOSO_OPEN_API_AUTHKEY_###",
+        "VirtuosoApiYAIBotURL": "https://virtuosoapielevatedev.yardiapp.com/yai-mobile-bot"
+      },
+      "AuthSettings": {
+        "SymmetricKey": "###_TOKEN4_###", #fake
+        "Issuer": "qMCdFDQuF23RV1Y-1Gq9L3cF3VmuFwVbam4fMTdAfpo",
+        "AudienceId": "b7d348cb8f204f09b17b1b2d0c951afd",
+        "AudienceSecret": "###_ELEVATENET_DEV_AUDIENCESECRET_###",
+        "yAuthAuthority": "{0}.yardionecoreqa.com",
+        "yAuthAudienceId": "{0}_elevatelocal",
+        "yAuthRedirectURI": "http://pmgroup.elevatelocal.com:5000/api/yauthpostback?clientpin=pmgroup",
+        "yAuthPostbackRedirectURI": "http://pmgroup.elevatelocal.com:5000/content2/",
+        "ClaimNameIdentifier": "yAuth"
+      },
+      "PrometheusSettings": {
+        "PrometheusEnabled": false
+      },
+      "EmailSmtpSetting": {
+        "host": "smtp.sendgrid.net",
+        "port": "587",
+        "from": "support@elevatedev.cafe",
+        "username": "apikey",
+        "password": "###_ELEVATENET_DEV_SENDGRIDPASSWORD_###"
+      },
+      "BackgroundTasks": {
+        "ServerType": "redis",
+        "ApplicationEnvironment": "PCA_Dev",
+        "JobCheckerFrequencyMinutes": 15,
+        "RedisPrefixApplicationNameOverride": "CRMIQScheduler",
+        "RedisDatabaseConnectionString": "master.elevate-tasks.valkey.pcz-dev-cache.yardiplatform.com,replicas.elevate-tasks.valkey.pcz-dev-cache.yardiplatform.com,abortConnect=false",
+        "LocationNames": [
+          "PCA"
+        ],
+        "Queues": [
+          {
+            #CRMIQ legacy queue - for migration.
+            #queue name Should be crmiqconnect_{ApplicationEnvironment}, e.g. 'crmiqconnect_pca_dev' when configured in yamls
+            "QueueName": "crmiqconnect_PCA_Dev",
+            "WorkerCount": 1,
+            "StartupOnPodsMatchingPattern": "(.*)"
+          },
+          {
+            "QueueName": "RecurringDefault",
+            "IsDefaultForRecurring": true,
+            "WorkerCount": 1,
+            "StartupOnPodsMatchingPattern": "(.*)"
+          },
+          {
+            "QueueName": "FireAndForgetDefault",
+            "IsDefaultForFireAndForget": true,
+            "WorkerCount": 30,
+            "StartupOnPodsMatchingPattern": "multitenant"
+          },
+          {
+            "QueueName": "ScheduledReports",
+            "WorkerCount": 1,
+            "StartupOnPodsMatchingPattern": "scheduler"
+          },
+          {
+            "QueueName": "ScheduledReportsMonitor",
+            "WorkerCount": 5,
+            "StartupOnPodsMatchingPattern": "(.*)"
+          },
+          {
+            "QueueName": "TestQueue",
+            "WorkerCount": 100,
+            "StartupOnPodsMatchingPattern": "(.*)"
+          }
+        ]
+      },
+      "ScheduledTasks": {
+        "BatchMonitorQueueName": "ScheduledReportsMonitor",
+        "DefaultTaskQueueName": "ScheduledReports",
+        "ProductHasVoyagerConnect": true,
+        "DefaultEmailSubjectSource": "Yardi [PCA_Dev]",
+        "MaxEmailAttachmentSizeInBytes": 20000000,
+        "RestrictedRecipientsRegex": "elevate(dev)?\\.yardi\\+[^@]+\\@gmail\\.com|(.*)\\@yardi\\.com",
+        "BatchTimeoutInMinutes": 20
+      },
+    "CacheConfiguration": {
+        "Enabled": true,
+        "DefaultExpiryInSeconds": 120,
+        "MemoryCacheEnabled": true,
+        "RedisCacheEnabled": false,
+        "RedisConnectionString": "master.redis.pcz-dev-cache.yardiplatform.com, replicas.redis.pcz-dev-cache.yardiplatform.com, abortConnect = false, connectTimeout = 10000, syncTimeout = 10000, connectRetry = 5",
+        "RedisDefaultExpiryInSeconds": 120
+      },
+      "AmazonS3Settings": {
+        "Bucket": "yardi-rentcafecrmflex-fake",
+        "AccessKeyId": "NotASensitiveSecretValue1234abc-!@#AgainX9",
+        "SecretAccessKey": "###_TOKEN5_###",
+        "SecretAccessKey2": "hoaxed-secret-uhZtofOcNnzoH6F5-m0bzsLvCqIjzNFG" # should detect this?
+      }
+    }
+
+scheduler:
+  serviceAccount:
+    automount: true
+
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 2000
+    seccompProfile:
+      type: RuntimeDefault
+
+  securityContext:
+    capabilities:
+      drop:
+      - ALL
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
