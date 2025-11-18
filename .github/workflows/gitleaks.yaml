@@ -32,7 +32,7 @@ jobs:
           echo "After  SHA: $AFTER_SHA"
 
           # Handle first commit on a new branch (no before SHA)
-          if [ "$BEFORE_SHA" = "" ]; then
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" || "$BEFORE_SHA" = "" ]; then
             echo "New branch detected – comparing against origin/$DEFAULT_BRANCH"
             git fetch origin $DEFAULT_BRANCH --depth=1
             CHANGED_FILES=$(git diff --name-only origin/$DEFAULT_BRANCH..$AFTER_SHA | tr '\n' ' ')
