@@ -3,7 +3,7 @@ name: Gitleaks Dry Run
 on:
   push:
     branches:
-      - '**'  # Run on all branches
+      - '**'   # Run on all branches
   workflow_dispatch:  # Allow manual runs too
 
 jobs:
@@ -11,26 +11,42 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # --- Checkout full history so diffs work reliably ---
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for accurate diffs
+          fetch-depth: 0
 
-      - name: Determine changed files vs default branch tip
+      # --- Determine changed files ---
+      - name: Determine changed files since last commit on branch
         id: changes
         run: |
-          DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
-          git fetch origin $DEFAULT_BRANCH 
+          set -e
 
+          DEFAULT_BRANCH="${{ github.event.repository.default_branch }}"
+          BEFORE_SHA="${{ github.event.before }}"
           AFTER_SHA="${{ github.sha }}"
 
-          echo "Comparing origin/$DEFAULT_BRANCH (remote tip) to $AFTER_SHA"
-          CHANGED_FILES=$(git diff --name-only origin/$DEFAULT_BRANCH..$AFTER_SHA | tr '\n' ' ')
-          
+          echo "Default branch: $DEFAULT_BRANCH"
+          echo "Before SHA: $BEFORE_SHA"
+          echo "After  SHA: $AFTER_SHA"
+
+          # Handle first commit on a new branch (no before SHA)
+          if [ "$BEFORE_SHA" = "" ]; then
+            echo "New branch detected – comparing against origin/$DEFAULT_BRANCH"
+            git fetch origin $DEFAULT_BRANCH --depth=1
+            CHANGED_FILES=$(git diff --name-only origin/$DEFAULT_BRANCH..$AFTER_SHA | tr '\n' ' ')
+          # Else compare to main
+          else
+            echo "Fetching previous commit $BEFORE_SHA for comparison..."
+            git fetch origin $BEFORE_SHA --depth=1 || true
+            CHANGED_FILES=$(git diff --name-only $BEFORE_SHA $AFTER_SHA | tr '\n' ' ')
+          fi
+
           echo "files=${CHANGED_FILES}" >> $GITHUB_OUTPUT
           echo "Changed files: $CHANGED_FILES"
 
-
+      # --- Run Gitleaks on changed files ---
       - name: Run Gitleaks (dry run)
         if: steps.changes.outputs.files != ''
         run: |
@@ -45,6 +61,7 @@ jobs:
               --redact --verbose || true
           done
 
+      # --- Parse report for quick summary ---
       - name: Parse report (show rule names only)
         if: always()
         run: |
@@ -59,9 +76,10 @@ jobs:
             echo "No reports generated."
           fi
 
+      # --- Upload all reports as artifacts for inspection ---
       - name: Upload Gitleaks reports (for review)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: gitleaks-dryrun-reports
-          path: gitleaks-report-*.json
+          path: gitleaks-
