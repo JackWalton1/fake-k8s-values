@@ -32,13 +32,12 @@ jobs:
           echo "After  SHA: $AFTER_SHA"
 
           # Handle first commit on a new branch (no before SHA)
-          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" || "$BEFORE_SHA" = "" ]; then
+          if [[ "$BEFORE_SHA" == "0000000000000000000000000000000000000000" || -z "$BEFORE_SHA" ]]; then
             echo "New branch detected – comparing against origin/$DEFAULT_BRANCH"
             git fetch origin $DEFAULT_BRANCH --depth=1
             CHANGED_FILES=$(git diff --name-only origin/$DEFAULT_BRANCH..$AFTER_SHA | tr '\n' ' ')
-          # Else compare to main
           else
-            echo "Fetching previous commit $BEFORE_SHA for comparison..."
+            echo "Comparing previous commit $BEFORE_SHA → $AFTER_SHA"
             git fetch origin $BEFORE_SHA --depth=1 || true
             CHANGED_FILES=$(git diff --name-only $BEFORE_SHA $AFTER_SHA | tr '\n' ' ')
           fi
@@ -60,6 +59,7 @@ jobs:
               --report-path "/path/gitleaks-report-$(basename $file).json" \
               --redact --verbose 
           done
+          
       # --- Parse report for quick summary ---
       - name: Parse report (show rule names only)
         if: always()
@@ -75,10 +75,3 @@ jobs:
             echo "No reports generated."
           fi
 
-      # --- Upload all reports as artifacts for inspection ---
-      - name: Upload Gitleaks reports (for review)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: gitleaks-dryrun-reports
-          path: gitleaks-
